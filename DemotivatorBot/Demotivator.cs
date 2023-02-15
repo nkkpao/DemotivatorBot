@@ -39,8 +39,8 @@ namespace DemotivatorBot
 
             var font =
                 new Typeface(
-                    new FontFamily("Segoe UI"), FontStyles.Normal,
-                    FontWeights.Bold, FontStretches.SemiExpanded);
+                    new FontFamily("Times New Roman"), FontStyles.Normal,
+                    FontWeights.Normal, FontStretches.SemiExpanded);
             // <--
 
             var image = BitmapFrame.Create(new Uri("file://" + fileToDemotivatePath));
