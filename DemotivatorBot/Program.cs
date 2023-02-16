@@ -1,4 +1,6 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
+using System.IO.Enumeration;
 using DemotivatorBot;
 using Telegram.Bot;
 using Telegram.Bot.Exceptions;
@@ -6,6 +8,14 @@ using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.InputFiles;
+
+//-------------------------
+// TODO
+// Logging
+// Color and font choice
+// iPhone HEIF format support
+// Random hash codes - done
+//-------------------------  
 
 var botClient = new TelegramBotClient("5897472120:AAGGvBDZki8avHeY9Nr1NiVsTzzrHkB_ENs");
 
@@ -27,57 +37,59 @@ var me = await botClient.GetMeAsync();
 
 Console.WriteLine($"Start listening for @{me.Username}");
 Console.ReadLine();
-
-//Send cancellation request to stop
 cts.Cancel();
 
 async Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
 {
-    if (update.Message is not { } message)
-        return;
-
+    if (update.Message is not { } message) { return; }
     var chatId = message.Chat.Id;
 
+    //Text
     if (message.Text != null)
     {
-        string messageText = message.Text;
-        Console.WriteLine($"{chatId}: {message.Chat.FirstName}   |Text: {messageText}");
-        return;
-    }
-
-    if (message.Photo != null)
-    {
+        Console.WriteLine($"{chatId}: {message.Chat.FirstName}   |Text: {message.Text}");
         await botClient.SendTextMessageAsync(
             chatId,
-            "Пожалуйста, отправьте документом в формате JPG с описанием(оно будет подписью на вашем изображении).");
-        Console.WriteLine($"{chatId}: {message.Chat.FirstName}   |Photo");
+            "Please submit a JPG document with a caption (this will be the caption on your image).");
         return;
     }
 
-    if (message.Document != null)
+    //Document and Photo
+    if (message.Document != null || message.Photo != null)
     {
         if (message.Caption == null) 
         {
+            Console.WriteLine($"{chatId}: {message.Chat.FirstName}   |No caption document");
             await botClient.SendTextMessageAsync(
             chatId,
-            "Пожалуйста, отправьте документом в формате JPG с описанием(оно будет подписью на вашем изображении).");
+            "Please submit a JPG document or Photo with a caption (this will be the caption on your image).");
             return;
         }
 
+        string fileId;
         string caption = message.Caption;
-        Console.WriteLine($"{chatId}: {message.Chat.FirstName}   |Caption: {message.Caption}");
 
-        var fileId = message.Document.FileId;
+        if (message.Photo != null)
+        {
+            Console.WriteLine($"{chatId}: {message.Chat.FirstName}   |Photo with caption: {message.Caption}");
+            fileId = message.Photo.Last().FileId;
+        }
+        else
+        {
+            fileId = message.Document.FileId;
+            Console.WriteLine($"{chatId}: {message.Chat.FirstName}   |Document with caption: {message.Caption}");
+        }
+
         var fileInfo = await botClient.GetFileAsync(fileId);
         var filePath = fileInfo.FilePath;
 
         if (filePath == null)
         {
-            Console.WriteLine("filePath null");
+            Console.WriteLine("FilePath null");
             return;
         }
 
-        string destinationFilePath = $@"{Environment.GetFolderPath(Environment.SpecialFolder.Desktop)}\picsinput\{message.Document.FileName}";
+        string destinationFilePath = $@"{Environment.GetFolderPath(Environment.SpecialFolder.Desktop)}\picsinput\{System.Guid.NewGuid()}.jpg";
 
         Demotivator d = new Demotivator(caption, destinationFilePath);
 
@@ -88,7 +100,7 @@ async Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, Cancel
         await Task.Run(() => d.Demotivate());
 
         await using Stream stream = System.IO.File.OpenRead(d.ResultPath);
-        await botClient.SendDocumentAsync(chatId, new InputOnlineFile(stream, "pic.jpg"), "Вот ваша картинка.");
+        await botClient.SendDocumentAsync(chatId, new InputOnlineFile(stream, $@"output.jpg"));
 
         stream.Close();
 
