@@ -87,8 +87,7 @@ namespace DemotivatorBot
             encoder.Frames.Add(BitmapFrame.Create(bmp));
             using (var stream = System.IO.File.Create(ResultPath))
                 encoder.Save(stream);
-
-            return;
+            return ;
         } 
     }
 }

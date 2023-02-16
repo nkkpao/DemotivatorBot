@@ -85,7 +85,7 @@ async Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, Cancel
         await botClient.DownloadFileAsync(filePath, fileStream);
         fileStream.Close();
 
-        d.Demotivate();
+        await Task.Run(() => d.Demotivate());
 
         await using Stream stream = System.IO.File.OpenRead(d.ResultPath);
         await botClient.SendDocumentAsync(chatId, new InputOnlineFile(stream, "pic.jpg"), "Вот ваша картинка.");
