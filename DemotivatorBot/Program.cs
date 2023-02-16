@@ -7,6 +7,14 @@ using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.InputFiles;
 
+//-------------------------
+// TODO
+// Logging
+// Color and font choice
+// iPhone HEIF format support
+// Random hash codes
+//-------------------------  
+
 var botClient = new TelegramBotClient("5897472120:AAGGvBDZki8avHeY9Nr1NiVsTzzrHkB_ENs");
 
 using CancellationTokenSource cts = new();
@@ -27,45 +35,47 @@ var me = await botClient.GetMeAsync();
 
 Console.WriteLine($"Start listening for @{me.Username}");
 Console.ReadLine();
-
-//Send cancellation request to stop
 cts.Cancel();
 
 async Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
 {
-    if (update.Message is not { } message)
-        return;
-
+    if (update.Message is not { } message) { return; }
     var chatId = message.Chat.Id;
 
+    //Text
     if (message.Text != null)
     {
-        string messageText = message.Text;
-        Console.WriteLine($"{chatId}: {message.Chat.FirstName}   |Text: {messageText}");
-        return;
-    }
-
-    if (message.Photo != null)
-    {
+        Console.WriteLine($"{chatId}: {message.Chat.FirstName}   |Text: {message.Text}");
         await botClient.SendTextMessageAsync(
             chatId,
-            "Пожалуйста, отправьте документом в формате JPG с описанием(оно будет подписью на вашем изображении).");
-        Console.WriteLine($"{chatId}: {message.Chat.FirstName}   |Photo");
+            "Please submit a JPG document with a caption (this will be the caption on your image).");
         return;
     }
 
+    //Photo
+    if (message.Photo != null)
+    {
+        Console.WriteLine($"{chatId}: {message.Chat.FirstName}   |Photo");
+        await botClient.SendTextMessageAsync(
+            chatId,
+            "Please submit a JPG document with a caption (this will be the caption on your image).");
+        return;
+    }
+
+    //Document
     if (message.Document != null)
     {
         if (message.Caption == null) 
         {
+            Console.WriteLine($"{chatId}: {message.Chat.FirstName}   |No caption document");
             await botClient.SendTextMessageAsync(
             chatId,
-            "Пожалуйста, отправьте документом в формате JPG с описанием(оно будет подписью на вашем изображении).");
+            "Please submit a JPG document with a description (this will be the caption on your image).");
             return;
         }
 
         string caption = message.Caption;
-        Console.WriteLine($"{chatId}: {message.Chat.FirstName}   |Caption: {message.Caption}");
+        Console.WriteLine($"{chatId}: {message.Chat.FirstName}   |Document with caption: {message.Caption}");
 
         var fileId = message.Document.FileId;
         var fileInfo = await botClient.GetFileAsync(fileId);
@@ -73,7 +83,7 @@ async Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, Cancel
 
         if (filePath == null)
         {
-            Console.WriteLine("filePath null");
+            Console.WriteLine("FilePath null");
             return;
         }
 
@@ -88,7 +98,7 @@ async Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, Cancel
         d.Demotivate();
 
         await using Stream stream = System.IO.File.OpenRead(d.ResultPath);
-        await botClient.SendDocumentAsync(chatId, new InputOnlineFile(stream, "pic.jpg"), "Вот ваша картинка.");
+        await botClient.SendDocumentAsync(chatId, new InputOnlineFile(stream, "pic.jpg"));
 
         stream.Close();
 

@@ -12,26 +12,22 @@ namespace DemotivatorBot
 {
     internal class Demotivator
     {
-        private string demotivatorText = "";
-        private string fileToDemotivatePath = "";
-        private string resultPath = @$"{Environment.GetFolderPath(Environment.SpecialFolder.Desktop)}\picsoutput\output.jpg";
+        public string DemotivatorText { get; set; } = "";
+        public string FileToDemotivatePath { get; set; } = "";
+        public string FontStyle { get; set; } = "Times New Roman";
+        public SolidColorBrush Background { get; set; } = Brushes.Black;
+        public SolidColorBrush TextColor { get; set; } = Brushes.White;
+        public string ResultPath { get; set; } = @$"{Environment.GetFolderPath(Environment.SpecialFolder.Desktop)}\picsoutput\output.jpg";
 
-
-        public string DemotivatorText { get => DemotivatorText; set => DemotivatorText = value; }
-        public string FileToDemotivatePath { get => fileToDemotivatePath; set => fileToDemotivatePath = value; }
-        public string ResultPath { get => resultPath; set => resultPath = value; }
 
         public Demotivator(string text, string file)
         {
-            demotivatorText = text;
-            fileToDemotivatePath = file;
+            DemotivatorText = text;
+            FileToDemotivatePath = file;
         }
 
-        public void Demotivate() 
+        public void Demotivate()
         {
-            var background = Brushes.Black;
-            var textColor = Brushes.White;
-
             var gap = 20;
             var fontSize = 70;
 
@@ -39,18 +35,18 @@ namespace DemotivatorBot
 
             var font =
                 new Typeface(
-                    new FontFamily("Times New Roman"), FontStyles.Normal,
+                    new FontFamily(FontStyle), FontStyles.Normal,
                     FontWeights.Normal, FontStretches.SemiExpanded);
-            // <--
+            
 
-            var image = BitmapFrame.Create(new Uri("file://" + fileToDemotivatePath));
+            var image = BitmapFrame.Create(new Uri("file://" + FileToDemotivatePath));
             var imageWidth = (double)image.PixelWidth;
             var imageHeight = (double)image.PixelHeight;
 
             var formattedText =
             new FormattedText(
-                    demotivatorText, CultureInfo.CurrentCulture, FlowDirection.LeftToRight,
-                    font, fontSize, textColor, dpi)
+                    DemotivatorText, CultureInfo.CurrentCulture, FlowDirection.LeftToRight,
+                    font, fontSize, TextColor, dpi)
                 {
                     MaxTextWidth = imageWidth,
                     TextAlignment = TextAlignment.Center
@@ -66,7 +62,7 @@ namespace DemotivatorBot
             using (var drawingContext = drawingVisual.RenderOpen())
             {
                 drawingContext.DrawRectangle(
-                    background, null,
+                    Background, null,
                     new Rect(0, 0, totalWidth, totalHeight));
 
                 drawingContext.DrawImage(
