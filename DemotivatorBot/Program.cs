@@ -17,7 +17,25 @@ using Telegram.Bot.Types.InputFiles;
 // Random hash codes - done
 //-------------------------  
 
-var botClient = new TelegramBotClient("5897472120:AAGGvBDZki8avHeY9Nr1NiVsTzzrHkB_ENs");
+string botkey = "";
+
+try
+{
+    // Open the text file using a stream reader.
+    using (var sr = new StreamReader(@$"{Environment.GetFolderPath(Environment.SpecialFolder.Desktop)}\botkey.txt"))
+    {
+        // Read the stream as a string, and write the string to the console.
+        botkey = sr.ReadToEnd();
+    }
+}
+catch (IOException e)
+{
+    Console.WriteLine("The file could not be read:");
+    Console.WriteLine(e.Message);
+    Console.ReadKey();
+}
+
+var botClient = new TelegramBotClient(botkey);
 
 using CancellationTokenSource cts = new();
 

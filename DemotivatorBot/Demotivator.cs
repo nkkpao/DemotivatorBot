@@ -17,7 +17,7 @@ namespace DemotivatorBot
         public string FontStyle { get; set; } = "Times New Roman";
         public SolidColorBrush Background { get; set; } = Brushes.Black;
         public SolidColorBrush TextColor { get; set; } = Brushes.White;
-        public string ResultPath { get; set; } = @$"{Environment.GetFolderPath(Environment.SpecialFolder.Desktop)}\picsoutput\{System.Guid.NewGuid()}.jpg";
+        public string ResultPath { get; } = @$"{Environment.GetFolderPath(Environment.SpecialFolder.Desktop)}\picsoutput\{System.Guid.NewGuid()}.jpg";
 
 
         public Demotivator(string text, string file)
