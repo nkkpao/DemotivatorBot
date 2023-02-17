@@ -29,7 +29,7 @@ namespace DemotivatorBot
         public void Demotivate()
         {
             var gap = 20;
-            var fontSize = 70;
+            var fontSize = 50;
 
             var dpi = 96;
 
