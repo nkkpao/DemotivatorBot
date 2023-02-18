@@ -63,13 +63,23 @@ async Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, Cancel
     var chatId = message.Chat.Id;
 
     //Text
+    
     if (message.Text != null)
     {
-        Console.WriteLine($"{chatId}: {message.Chat.FirstName}   |Text: {message.Text}");
-        await botClient.SendTextMessageAsync(
-            chatId,
-            "Please submit a JPG document with a caption (this will be the caption on your image).");
-        return;
+        try
+        {
+            Console.WriteLine($"{chatId}: {message.Chat.FirstName}   |Text: {message.Text}");
+            await botClient.SendTextMessageAsync(
+                chatId,
+                "Please submit a JPG document with a caption (this will be the caption on your image).");
+            return;
+
+        }
+        catch
+        {
+            Console.WriteLine($"{chatId}: {message.Chat.FirstName}   |Text: {message.Text}");
+            return;
+        }
     }
 
     //Document and Photo
@@ -77,11 +87,19 @@ async Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, Cancel
     {
         if (message.Caption == null) 
         {
-            Console.WriteLine($"{chatId}: {message.Chat.FirstName}   |No caption document");
-            await botClient.SendTextMessageAsync(
-            chatId,
-            "Please submit a JPG document or Photo with a caption (this will be the caption on your image).");
-            return;
+            try
+            {
+                Console.WriteLine($"{chatId}: {message.Chat.FirstName}   |No caption document");
+                await botClient.SendTextMessageAsync(
+                chatId,
+                "Please submit a JPG document or Photo with a caption (this will be the caption on your image).");
+                return;
+            }
+            catch
+            {
+                return;
+            }
+            
         }
 
         string fileId;
