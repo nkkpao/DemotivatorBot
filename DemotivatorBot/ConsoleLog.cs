@@ -34,11 +34,27 @@ namespace DemotivatorBot
         }
     }
 
+    internal class PhotoCaptionLog : IConsoleLog
+    {
+        public void Logging(Message message)
+        {
+            Console.WriteLine($"{message.Chat.Id}: {message.Chat.FirstName}   |Photo with caption: {message.Caption}");
+        }
+    }
+
     internal class DocNoCaptionLog : IConsoleLog
     {
         public void Logging(Message message)
         {
             Console.WriteLine($"{message.Chat.Id}: {message.Chat.FirstName}   |No caption document");
+        }
+    }
+
+    internal class Logger
+    {
+        public void Log(IConsoleLog consoleLog, Message message) 
+        {
+            consoleLog.Logging(message);
         }
     }
 }

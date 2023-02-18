@@ -11,10 +11,8 @@ using Telegram.Bot.Types.InputFiles;
 
 //-------------------------
 // TODO
-// Logging
 // Color and font choice
 // iPhone HEIF format support
-// Random hash codes - done
 //-------------------------  
 
 string botkey = "";
@@ -61,23 +59,23 @@ async Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, Cancel
 {
     if (update.Message is not { } message) { return; }
     var chatId = message.Chat.Id;
+    Logger logger = new Logger();
+    string sendMePicMessage = "Please submit a JPG document with a caption (this will be the caption on your image).";
 
     //Text
-    
+
     if (message.Text != null)
     {
         try
         {
-            Console.WriteLine($"{chatId}: {message.Chat.FirstName}   |Text: {message.Text}");
-            await botClient.SendTextMessageAsync(
-                chatId,
-                "Please submit a JPG document with a caption (this will be the caption on your image).");
+            logger.Log(new TextLog(), message);
+            await botClient.SendTextMessageAsync(chatId, sendMePicMessage);
             return;
 
         }
         catch
         {
-            Console.WriteLine($"{chatId}: {message.Chat.FirstName}   |Text: {message.Text}");
+            Console.WriteLine($"{chatId}: {message.Chat.FirstName}   |TEXT ERROR");
             return;
         }
     }
@@ -89,10 +87,8 @@ async Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, Cancel
         {
             try
             {
-                Console.WriteLine($"{chatId}: {message.Chat.FirstName}   |No caption document");
-                await botClient.SendTextMessageAsync(
-                chatId,
-                "Please submit a JPG document or Photo with a caption (this will be the caption on your image).");
+                logger.Log(new DocNoCaptionLog(), message);
+                await botClient.SendTextMessageAsync(chatId, sendMePicMessage);
                 return;
             }
             catch
@@ -107,13 +103,13 @@ async Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, Cancel
 
         if (message.Photo != null)
         {
-            Console.WriteLine($"{chatId}: {message.Chat.FirstName}   |Photo with caption: {message.Caption}");
+            logger.Log(new PhotoCaptionLog(), message);
             fileId = message.Photo.Last().FileId;
         }
         else
         {
+            logger.Log(new DocCaptionLog(), message);
             fileId = message.Document.FileId;
-            Console.WriteLine($"{chatId}: {message.Chat.FirstName}   |Document with caption: {message.Caption}");
         }
 
         var fileInfo = await botClient.GetFileAsync(fileId);
@@ -129,13 +125,13 @@ async Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, Cancel
 
         Demotivator d = new Demotivator(caption, destinationFilePath);
 
-        await using Stream fileStream = System.IO.File.OpenWrite(destinationFilePath);
+        await using Stream fileStream = System.IO.File.OpenWrite(destinationFilePath); //Download file
         await botClient.DownloadFileAsync(filePath, fileStream);
         fileStream.Close();
 
-        await Task.Run(() => d.Demotivate());
+        await Task.Run(() => d.Demotivate()); //Create demotivator
 
-        await using Stream stream = System.IO.File.OpenRead(d.ResultPath);
+        await using Stream stream = System.IO.File.OpenRead(d.ResultPath); //Send file
         await botClient.SendDocumentAsync(chatId, new InputOnlineFile(stream, $@"output.jpg"));
 
         stream.Close();
