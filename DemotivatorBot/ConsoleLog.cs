@@ -57,6 +57,13 @@ namespace DemotivatorBot
             Console.WriteLine("");
         }
     }
+    internal class SecondEmptyLog : IConsoleLog
+    {
+        public void Logging(Message message)
+        {
+            Console.WriteLine("");
+        }
+    }
 
     internal class Logger
     {
