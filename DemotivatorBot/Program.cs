@@ -12,8 +12,6 @@ using Telegram.Bot.Types.InputFiles;
 //-------------------------
 // TODO
 // Color and font choice
-// iPhone HEIF format support
-//-------------------------  
 
 string botkey = "";
 
